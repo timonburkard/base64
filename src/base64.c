@@ -27,19 +27,29 @@ enum {
 
 static const char* const text_names[] = {"--text", "-t", NULL};
 
-static const clic_arg_t arguments[] = {
+static const clic_arg_t arguments_encode[] = {
     [ARG_ID_INPUT] = {
         .type        = CLIC_ARG_POSITIONAL,
         .required    = true,
         .names       = NULL,
         .value_name  = "FILE",
-        .description = "File to hex dump or '-' for stdin",
+        .description = "Input file",
     },
     [ARG_ID_TEXT] = {
         .type        = CLIC_ARG_FLAG,
         .required    = false,
         .names       = text_names,
         .description = "Input is a text string instead of a file",
+    },
+};
+
+static const clic_arg_t arguments_decode[] = {
+    [ARG_ID_INPUT] = {
+        .type        = CLIC_ARG_POSITIONAL,
+        .required    = true,
+        .names       = NULL,
+        .value_name  = "FILE",
+        .description = "Input file",
     },
 };
 
@@ -51,15 +61,15 @@ static const clic_cmd_t commands[] = {
         .names       = encode_names,
         .description = "encode something as base64",
         .function    = encode,
-        .argc        = (uint8_t)(sizeof(arguments) / sizeof(arguments[0])),
-        .argv        = arguments,
+        .argc        = (uint8_t)(sizeof(arguments_encode) / sizeof(arguments_encode[0])),
+        .argv        = arguments_encode,
     },
     {
         .names       = decode_names,
         .description = "decode something from base64",
         .function    = decode,
-        .argc        = (uint8_t)(sizeof(arguments) / sizeof(arguments[0])),
-        .argv        = arguments,
+        .argc        = (uint8_t)(sizeof(arguments_decode) / sizeof(arguments_decode[0])),
+        .argv        = arguments_decode,
     },
 };
 
