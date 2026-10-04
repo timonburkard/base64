@@ -44,9 +44,22 @@ if(BUILD_TESTING)
             NAME ${name}
             COMMAND ${CMAKE_COMMAND}
                 "-DBASE64_EXECUTABLE=$<TARGET_FILE:base64>"
+                "-DINPUT_MODE=text"
                 "-DINPUT=${input}"
                 "-DEXPECTED_OUTPUT=${expected_output}"
-                -P ${CMAKE_CURRENT_SOURCE_DIR}/test/run_encode_text_test.cmake
+                -P ${CMAKE_CURRENT_SOURCE_DIR}/test/run_encode_test.cmake
+        )
+    endfunction()
+
+    function(add_encode_binary_test name input expected)
+        add_test(
+            NAME ${name}
+            COMMAND ${CMAKE_COMMAND}
+                "-DBASE64_EXECUTABLE=$<TARGET_FILE:base64>"
+                "-DINPUT_MODE=file"
+                "-DINPUT=${CMAKE_CURRENT_SOURCE_DIR}/test/input/${input}"
+                "-DEXPECTED_FILE=${CMAKE_CURRENT_SOURCE_DIR}/test/expected/${expected}"
+                -P ${CMAKE_CURRENT_SOURCE_DIR}/test/run_encode_test.cmake
         )
     endfunction()
 
@@ -57,4 +70,8 @@ if(BUILD_TESTING)
     add_encode_text_test(encode_text_foob "foob" "Zm9vYg==")
     add_encode_text_test(encode_text_fooba "fooba" "Zm9vYmE=")
     add_encode_text_test(encode_text_foobar "foobar" "Zm9vYmFy")
+
+    add_encode_binary_test(encode_binary_no_padding no_padding.bin no_padding.txt)
+    add_encode_binary_test(encode_binary_two_unused_bits two_unused_bits.bin two_unused_bits.txt)
+    add_encode_binary_test(encode_binary_four_unused_bits four_unused_bits.bin four_unused_bits.txt)
 endif()
