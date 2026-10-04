@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "clic.h"
 
@@ -21,7 +22,10 @@ void       encode_as_base64(const uint8_t* input, size_t input_length);
 
 enum {
     ARG_ID_INPUT = 0,
+    ARG_ID_TEXT  = 1,
 };
+
+static const char* const text_names[] = {"--text", "-t", NULL};
 
 static const clic_arg_t arguments[] = {
     [ARG_ID_INPUT] = {
@@ -30,6 +34,12 @@ static const clic_arg_t arguments[] = {
         .names       = NULL,
         .value_name  = "FILE",
         .description = "File to hex dump or '-' for stdin",
+    },
+    [ARG_ID_TEXT] = {
+        .type        = CLIC_ARG_FLAG,
+        .required    = false,
+        .names       = text_names,
+        .description = "Input is a text string instead of a file",
     },
 };
 
@@ -71,6 +81,17 @@ clic_err_t encode(clic_res_t* result)
     size_t  read_bytes;
     FILE*   file;
     uint8_t input[CHUNK_SIZE];
+
+    if (result->argv[ARG_ID_TEXT] != NULL) {
+        const size_t string_length = strlen(result->argv[ARG_ID_INPUT]);
+
+        for (size_t i = 0; i < string_length; i += CHUNK_SIZE) {
+            size_t chunk_size = (string_length - i >= CHUNK_SIZE) ? CHUNK_SIZE : string_length - i;
+            encode_as_base64((const uint8_t*)&result->argv[ARG_ID_INPUT][i], chunk_size);
+        }
+
+        return CLIC_ERR_OK;
+    }
 
     file = fopen(result->argv[ARG_ID_INPUT], "rb");
 
