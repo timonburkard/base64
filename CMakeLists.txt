@@ -5,6 +5,8 @@ project(base64
     LANGUAGES C
 )
 
+include(CTest)
+
 add_executable(base64
     src/base64.c
     ext/clic/src/clic.c
@@ -35,3 +37,24 @@ set_target_properties(base64 PROPERTIES
     C_EXTENSIONS OFF
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+if(BUILD_TESTING)
+    function(add_encode_text_test name input expected_output)
+        add_test(
+            NAME ${name}
+            COMMAND ${CMAKE_COMMAND}
+                "-DBASE64_EXECUTABLE=$<TARGET_FILE:base64>"
+                "-DINPUT=${input}"
+                "-DEXPECTED_OUTPUT=${expected_output}"
+                -P ${CMAKE_CURRENT_SOURCE_DIR}/test/run_encode_text_test.cmake
+        )
+    endfunction()
+
+    add_encode_text_test(encode_text_empty "" "")
+    add_encode_text_test(encode_text_f "f" "Zg==")
+    add_encode_text_test(encode_text_fo "fo" "Zm8=")
+    add_encode_text_test(encode_text_foo "foo" "Zm9v")
+    add_encode_text_test(encode_text_foob "foob" "Zm9vYg==")
+    add_encode_text_test(encode_text_fooba "fooba" "Zm9vYmE=")
+    add_encode_text_test(encode_text_foobar "foobar" "Zm9vYmFy")
+endif()
